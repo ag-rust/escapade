@@ -1,9 +1,9 @@
-extern crate safe_buffer;
+extern crate escapade;
 
 #[allow(unused_must_use)]
 mod test {
-    use safe_buffer::Escapable;
-    use safe_buffer::Append;
+    use escapade::Escapable;
+    use escapade::Append;
 
     #[test]
     fn concatenate_safe_and_unsafe() {

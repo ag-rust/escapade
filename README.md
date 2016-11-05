@@ -1,8 +1,8 @@
-# safe\_buffer
+# escapade - html safe strings
 
-`safe_buffer` is inspired by ActiveSupports SafeBuffer.
+`escapade` is inspired by ActiveSupports SafeBuffer.
 
-`safe_buffer` provides String concatenation and writing, but automatically escapes any HTML in the data in the process. This prevents accidental unescaped writes to the output.
+`escapade` provides String concatenation and writing, but automatically escapes any HTML in the data in the process. This prevents accidental unescaped writes to the output.
 
 The library provides both a String type for HTML-safe concatenation and a writer, wrapping types implementing `Write`.
 
@@ -15,7 +15,7 @@ You might want to use this library for your templating language ;).
 Put the following in the `dependencies` section of your `Cargo.toml`:
 
 ```
-safe_buffer_ = "0.1.0"
+escapade = "0.1.0"
 ```
 
 ### Writer mode

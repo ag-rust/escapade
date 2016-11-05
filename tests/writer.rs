@@ -1,10 +1,10 @@
-extern crate safe_buffer;
+extern crate escapade;
 
 #[allow(unused_must_use)]
 mod test {
-    use safe_buffer::Escapable;
-    use safe_buffer::SafeWriter;
-    use safe_buffer::SafeWrite;
+    use escapade::Escapable;
+    use escapade::SafeWriter;
+    use escapade::SafeWrite;
 
     #[test]
     fn escape_unsafe_string() {
