@@ -40,6 +40,8 @@ let res = s.append_str(String::from("&world</hello>"));
 assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", res.into_inner());
 ```
 
+Escaped strings cannot be appended to normal strings.
+
 ### Opting into safety
 
 Sometimes, you are sure that the string in question is safe (e.g., you painstakenly created it by hand). You can opt into safety in this case, to avoid escaping:
@@ -49,7 +51,6 @@ let mut buffer = SafeWriter::new(vec![]);
 
 buffer.write_str("<hello>&world</hello>".safe());
 assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwrap());
-
 ```
 
 ## License
