@@ -62,3 +62,7 @@ assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwra
 ## License
 
 MIT
+
+## Acknowledgements
+
+Encoding functionality taken from [rust-htmlescape](http://github.com/veddan/rust-htmlescape), by [Viktor Dahl](https://github.com/veddan), licensed under MIT.
