@@ -1,4 +1,4 @@
-# escapade - html safe strings
+# escapade - type assisted html safety
 
 `escapade` is inspired by ActiveSupports SafeBuffer.
 
