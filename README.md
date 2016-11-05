@@ -53,6 +53,12 @@ buffer.write_str("<hello>&world</hello>".safe());
 assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwrap());
 ```
 
+## TODO
+
+* Document
+* Think about the interface a bit
+* Bump to 1.0.0
+
 ## License
 
 MIT
