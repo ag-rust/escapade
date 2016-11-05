@@ -1,7 +1,4 @@
 [package]
-name = "html_safe_buffer"
+name = "safe_buffer"
 version = "0.1.0"
 authors = ["Florian Gilcher <florian.gilcher@asquera.de>"]
-
-[dependencies]
-marksman_escape = "0.1.2"
