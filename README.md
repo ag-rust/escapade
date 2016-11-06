@@ -15,7 +15,7 @@ You might want to use this library for your templating language ;).
 Put the following in the `dependencies` section of your `Cargo.toml`:
 
 ```
-escapade = "0.1.0"
+escapade = "0.0.1"
 ```
 
 ### Writer mode
