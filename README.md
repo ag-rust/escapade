@@ -55,8 +55,7 @@ assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwra
 
 ## TODO
 
-* Document
-* Think about the interface a bit
+* Think about the interface a bit more
 * Bump to 1.0.0
 
 ## License

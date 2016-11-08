@@ -1,3 +1,14 @@
+#![deny(missing_docs)]
+
+//! escapade - type assisted html safety
+//!
+//!`escapade` is inspired by ActiveSupports SafeBuffer.
+//!
+//! `escapade` provides String concatenation and writing, but automatically escapes any HTML in the data in the process. This prevents accidental unescaped writes to the output.
+//!
+//! The library provides both a String type for HTML-safe concatenation and a writer, wrapping types implementing `Write`.
+//!
+//! The library works with any type that implements `AsRef<str>`.
 mod encode;
 mod entities;
 
@@ -6,31 +17,40 @@ use encode::encode_attribute_w;
 use std::io::Write;
 use std::io;
 
+/// An escaped string-like value
+///
+/// Escaped wraps a value with the bounds `AsRef<str>`.
+/// It can work on any of those values, but any operations
+/// on them will return `Escaped<String>` and thus allocate.
 pub struct Escaped<T: AsRef<str>> {
     inner: T
 }
 
 impl<T: AsRef<str>> Escaped<T> {
+    /// Consumes the escaped marker and returns
+    /// the wrapped value.
     pub fn into_inner(self) -> T {
         self.inner
     }
 }
 
+/// Trait marking a value as appendable to `Escaped`
+///
+/// Values marked as `Append` can be appended to `Escaped`.
 pub trait Append<T> {
-    fn append_str(self, string: T) -> Escaped<String>;
+    /// Append any string-like value
+    fn append_str(&mut self, string: T);
 }
 
-impl<T: AsRef<str>> Append<T> for Escaped<String> {
-    fn append_str(mut self, string: T) -> Escaped<String> {
-        self.inner.push_str(encode_attribute(string.as_ref()).as_ref());
-        self
+impl<T: Escapable> Append<T> for Escaped<String> {
+    fn append_str(&mut self, string: T) {
+        self.append_str(string.escape())
     }
 }
 
 impl<T: AsRef<str>> Append<Escaped<T>> for Escaped<String> {
-    fn append_str(mut self, string: Escaped<T>) -> Escaped<String> {
-        self.inner.push_str(string.into_inner().as_ref());
-        self
+    fn append_str(&mut self, string: Escaped<T>) {
+        self.inner.push_str(string.inner.as_ref());
     }
 }
 
@@ -40,27 +60,39 @@ impl<T: AsRef<str>> Escaped<T> {
     }
 }
 
-pub struct SafeWriter<T: Write> {
+/// A wrapper for writer automatically escaping text written to it
+pub struct EscapedWriter<T: Write> {
     inner: T
 }
 
-impl<T: Write> SafeWriter<T> {
+impl<T: Write> EscapedWriter<T> {
+    /// Create a new `EscapedWriter`
     pub fn new(inner: T) -> Self {
-        SafeWriter { inner: inner }
+        EscapedWriter { inner: inner }
     }
 
+    /// Consume the writer, returning the wrapped value
     pub fn into_inner(self) -> T {
         self.inner
     }
 }
 
+/// Marks values as escapable
+///
+/// `Escapable` values can either be escaped by hand
+/// or by appending them to either a `SafeWriter` or
+/// an `Escaped` value.
+///
+/// `Escapable` values can also be considered safe
+/// by calling the appropriate value. Safe values
+/// are exempted from further escaping.
 pub trait Escapable: AsRef<str> {
+    /// Escape the value at hand and return
+    /// an escaped String.
     fn escape(&self) -> Escaped<String>;
+    /// Mark the value as safe, exempting it from
+    /// further escaping.
     fn safe(&self) -> Escaped<String>;
-}
-
-pub trait SafeWrite<T> {
-    fn write_str(&mut self, buffer: T) -> io::Result<()>;
 }
 
 impl<T: AsRef<str>> Escapable for T {
@@ -73,15 +105,30 @@ impl<T: AsRef<str>> Escapable for T {
     }
 }
 
-impl<X: AsRef<str>, W: Write> SafeWrite<Escaped<X>> for SafeWriter<W> {
-    fn write_str(&mut self, buffer: Escaped<X>) -> io::Result<()> {
-        self.inner.write_all(buffer.as_ref().as_bytes())
+/// Escaped writing to buffers
+///
+/// This trait handles writing of different kinds of values
+/// to an `EscapedWriter`. It is intended to be implemented
+/// for `EscapedWriter` for each kind of value that is allowed
+/// to be written to.
+///
+/// The implementor must properly escape the passed value before
+/// writing it.
+pub trait EscapedWrite<T> {
+    /// Write the passed string-like value to the writer,
+    /// returning the writers Result.
+    fn write_str(&mut self, value: T) -> io::Result<()>;
+}
+
+impl<X: AsRef<str>, W: Write> EscapedWrite<Escaped<X>> for EscapedWriter<W> {
+    fn write_str(&mut self, value: Escaped<X>) -> io::Result<()> {
+        self.inner.write_all(value.as_ref().as_bytes())
     }
 }
 
-impl<'a, X: Escapable, W: Write> SafeWrite<X> for SafeWriter<W> {
-    fn write_str(&mut self, buffer: X) -> io::Result<()> {
-        encode_attribute_w(buffer.as_ref(), &mut self.inner)
+impl<'a, X: Escapable, W: Write> EscapedWrite<X> for EscapedWriter<W> {
+    fn write_str(&mut self, value: X) -> io::Result<()> {
+        encode_attribute_w(value.as_ref(), &mut self.inner)
     }
 }
 
