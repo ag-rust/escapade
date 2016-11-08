@@ -5,7 +5,6 @@ use encode::encode_attribute;
 use encode::encode_attribute_w;
 use std::io::Write;
 use std::io;
-use std::fmt::Write as WriteFmt;
 
 pub struct Escaped<T: AsRef<str>> {
     inner: T
@@ -23,14 +22,14 @@ pub trait Append<T> {
 
 impl<T: AsRef<str>> Append<T> for Escaped<String> {
     fn append_str(mut self, string: T) -> Escaped<String> {
-        self.inner.write_str(encode_attribute(string.as_ref()).as_ref());
+        self.inner.push_str(encode_attribute(string.as_ref()).as_ref());
         self
     }
 }
 
 impl<T: AsRef<str>> Append<Escaped<T>> for Escaped<String> {
     fn append_str(mut self, string: Escaped<T>) -> Escaped<String> {
-        self.inner.write_str(string.into_inner().as_ref());
+        self.inner.push_str(string.into_inner().as_ref());
         self
     }
 }
