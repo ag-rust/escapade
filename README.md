@@ -23,10 +23,17 @@ escapade = "0.0.2"
 Use the `SafeWriter` struct to make any type implementing `Write` html safe.
 
 ```rust
-let mut buffer = SafeWriter::new(vec![]);
+extern crate escapade;
 
-buffer.write_str("<hello>&world</hello>");
-assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", String::from_utf8(buffer.into_inner()).unwrap());
+use escapade::EscapedWriter;
+use escapade::EscapedWrite;
+
+fn main() {
+    let mut buffer = EscapedWriter::new(vec![]);
+
+    buffer.write_str("<hello>&world</hello>").expect("write should not fail");
+    assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", String::from_utf8(buffer.into_inner()).unwrap());
+}
 ```
 
 ### String mode
@@ -34,10 +41,17 @@ assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", String::from_utf8(buffe
 Appending an unescaped string to any escaped string will escape the second string.
 
 ```rust
-let s = String::from("<hello>").escape();
-let res = s.append_str(String::from("&world</hello>"));
+extern crate escapade;
 
-assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", res.into_inner());
+use escapade::Append;
+use escapade::Escapable;
+
+fn main() {
+    let mut s = String::from("<hello>").escape();
+    s.append_str(String::from("&world</hello>"));
+
+    assert_eq!("&lt;hello&gt;&amp;world&lt;&#x2F;hello&gt;", s.into_inner());
+}
 ```
 
 Escaped strings cannot be appended to normal strings.
@@ -47,10 +61,18 @@ Escaped strings cannot be appended to normal strings.
 Sometimes, you are sure that the string in question is safe (e.g., you painstakenly created it by hand). You can opt into safety in this case, to avoid escaping:
 
 ```rust
-let mut buffer = SafeWriter::new(vec![]);
+extern crate escapade;
 
-buffer.write_str("<hello>&world</hello>".safe());
-assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwrap());
+use escapade::Escapable;
+use escapade::EscapedWriter;
+use escapade::EscapedWrite;
+
+fn main() {
+    let mut buffer = EscapedWriter::new(vec![]);
+
+    buffer.write_str("<hello>&world</hello>".safe()).expect("write should not fail");
+    assert_eq!("<hello>&world</hello>", String::from_utf8(buffer.into_inner()).unwrap());
+}
 ```
 
 ## TODO
